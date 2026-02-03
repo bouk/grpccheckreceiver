@@ -1,0 +1,82 @@
+type: grpccheck
+
+status:
+  class: receiver
+  stability:
+    alpha: [metrics]
+  distributions: [contrib]
+  codeowners:
+    active: [bouk]
+
+resource_attributes:
+
+attributes:
+  error.message:
+    description: Error message recorded during check.
+    type: string
+  grpc.endpoint:
+    description: gRPC endpoint.
+    type: string
+  grpc.service:
+    description: gRPC health check service name.
+    type: string
+  grpc.tls.cn:
+    description: The commonName in the subject of the certificate.
+    type: string
+  grpc.tls.issuer:
+    description: The entity that issued the certificate.
+    type: string
+  grpc.tls.san:
+    description: The Subject Alternative Name of the certificate.
+    type: slice
+
+metrics:
+  grpccheck.duration:
+    description: Measures the duration of the gRPC health check.
+    enabled: true
+    stability:
+      level: development
+    gauge:
+      value_type: int
+    unit: ms
+    attributes: [grpc.endpoint, grpc.service]
+  grpccheck.error:
+    description: Records errors occurring during gRPC health check.
+    enabled: true
+    stability:
+      level: development
+    sum:
+      value_type: int
+      aggregation_temporality: cumulative
+      monotonic: false
+    unit: "{error}"
+    attributes: [grpc.endpoint, grpc.service, error.message]
+  grpccheck.response.size:
+    description: Size of health check response in bytes.
+    enabled: false
+    stability:
+      level: development
+    gauge:
+      value_type: int
+    unit: "By"
+    attributes: [grpc.endpoint, grpc.service]
+  grpccheck.status:
+    description: 1 if the gRPC health check resulted in a SERVING status, otherwise 0.
+    enabled: true
+    stability:
+      level: development
+    sum:
+      value_type: int
+      aggregation_temporality: cumulative
+      monotonic: false
+    unit: "1"
+    attributes: [grpc.endpoint, grpc.service]
+  grpccheck.tls.cert_remaining:
+    description: Time in seconds until certificate expiry, as specified by `NotAfter` field in the x.509 certificate. Negative values represent time in seconds since expiration.
+    enabled: false
+    stability:
+      level: development
+    gauge:
+      value_type: int
+    unit: "s"
+    attributes: [grpc.endpoint, grpc.tls.issuer, grpc.tls.cn, grpc.tls.san]

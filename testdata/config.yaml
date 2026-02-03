@@ -1,0 +1,10 @@
+receivers:
+  grpccheck:
+    collection_interval: 1m
+    initial_delay: 1s
+    targets:
+      - endpoint: "localhost:50051"
+        tls:
+          insecure: true
+      - endpoint: "example.com:443"
+        service: "my.service"

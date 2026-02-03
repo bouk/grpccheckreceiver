@@ -1,0 +1,38 @@
+resourceMetrics:
+  - resource: {}
+    scopeMetrics:
+      - metrics:
+          - description: Measures the duration of the gRPC health check.
+            name: grpccheck.duration
+            gauge:
+              dataPoints:
+                - asInt: "1"
+                  attributes:
+                    - key: grpc.endpoint
+                      value:
+                        stringValue: 127.0.0.1:0
+                    - key: grpc.service
+                      value:
+                        stringValue: my.service
+                  startTimeUnixNano: "1000000"
+                  timeUnixNano: "2000000"
+            unit: ms
+          - description: 1 if the gRPC health check resulted in a SERVING status, otherwise 0.
+            name: grpccheck.status
+            sum:
+              aggregationTemporality: 2
+              dataPoints:
+                - asInt: "0"
+                  attributes:
+                    - key: grpc.endpoint
+                      value:
+                        stringValue: 127.0.0.1:0
+                    - key: grpc.service
+                      value:
+                        stringValue: my.service
+                  startTimeUnixNano: "1000000"
+                  timeUnixNano: "2000000"
+            unit: "1"
+        scope:
+          name: bou.ke/grpccheckreceiver
+          version: latest
