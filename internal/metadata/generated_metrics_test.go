@@ -67,9 +67,6 @@ func TestMetricsBuilder(t *testing.T) {
 			allMetricsCount++
 			mb.RecordGrpccheckErrorDataPoint(ts, 1, "grpc.endpoint-val", "grpc.service-val", "error.message-val")
 
-			allMetricsCount++
-			mb.RecordGrpccheckResponseSizeDataPoint(ts, 1, "grpc.endpoint-val", "grpc.service-val")
-
 			defaultMetricsCount++
 			allMetricsCount++
 			mb.RecordGrpccheckStatusDataPoint(ts, 1, "grpc.endpoint-val", "grpc.service-val")
@@ -140,24 +137,6 @@ func TestMetricsBuilder(t *testing.T) {
 					attrVal, ok = dp.Attributes().Get("error.message")
 					assert.True(t, ok)
 					assert.EqualValues(t, "error.message-val", attrVal.Str())
-				case "grpccheck.response.size":
-					assert.False(t, validatedMetrics["grpccheck.response.size"], "Found a duplicate in the metrics slice: grpccheck.response.size")
-					validatedMetrics["grpccheck.response.size"] = true
-					assert.Equal(t, pmetric.MetricTypeGauge, ms.At(i).Type())
-					assert.Equal(t, 1, ms.At(i).Gauge().DataPoints().Len())
-					assert.Equal(t, "Size of health check response in bytes.", ms.At(i).Description())
-					assert.Equal(t, "By", ms.At(i).Unit())
-					dp := ms.At(i).Gauge().DataPoints().At(0)
-					assert.Equal(t, start, dp.StartTimestamp())
-					assert.Equal(t, ts, dp.Timestamp())
-					assert.Equal(t, pmetric.NumberDataPointValueTypeInt, dp.ValueType())
-					assert.Equal(t, int64(1), dp.IntValue())
-					attrVal, ok := dp.Attributes().Get("grpc.endpoint")
-					assert.True(t, ok)
-					assert.EqualValues(t, "grpc.endpoint-val", attrVal.Str())
-					attrVal, ok = dp.Attributes().Get("grpc.service")
-					assert.True(t, ok)
-					assert.EqualValues(t, "grpc.service-val", attrVal.Str())
 				case "grpccheck.status":
 					assert.False(t, validatedMetrics["grpccheck.status"], "Found a duplicate in the metrics slice: grpccheck.status")
 					validatedMetrics["grpccheck.status"] = true

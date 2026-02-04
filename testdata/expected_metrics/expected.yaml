@@ -17,6 +17,25 @@ resourceMetrics:
                   startTimeUnixNano: "1000000"
                   timeUnixNano: "2000000"
             unit: ms
+          - description: Records errors occurring during gRPC health check.
+            name: grpccheck.error
+            sum:
+              aggregationTemporality: 2
+              dataPoints:
+                - asInt: "0"
+                  attributes:
+                    - key: error.message
+                      value:
+                        stringValue: ""
+                    - key: grpc.endpoint
+                      value:
+                        stringValue: 127.0.0.1:0
+                    - key: grpc.service
+                      value:
+                        stringValue: ""
+                  startTimeUnixNano: "1000000"
+                  timeUnixNano: "2000000"
+            unit: "{error}"
           - description: 1 if the gRPC health check resulted in a SERVING status, otherwise 0.
             name: grpccheck.status
             sum:

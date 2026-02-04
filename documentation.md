@@ -68,21 +68,6 @@ metrics:
     enabled: true
 ```
 
-### grpccheck.response.size
-
-Size of health check response in bytes.
-
-| Unit | Metric Type | Value Type |
-| ---- | ----------- | ---------- |
-| By | Gauge | Int |
-
-#### Attributes
-
-| Name | Description | Values |
-| ---- | ----------- | ------ |
-| grpc.endpoint | gRPC endpoint. | Any Str |
-| grpc.service | gRPC health check service name. | Any Str |
-
 ### grpccheck.tls.cert_remaining
 
 Time in seconds until certificate expiry, as specified by `NotAfter` field in the x.509 certificate. Negative values represent time in seconds since expiration.

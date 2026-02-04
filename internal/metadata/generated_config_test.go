@@ -27,7 +27,6 @@ func TestMetricsBuilderConfig(t *testing.T) {
 				Metrics: MetricsConfig{
 					GrpccheckDuration:         MetricConfig{Enabled: true},
 					GrpccheckError:            MetricConfig{Enabled: true},
-					GrpccheckResponseSize:     MetricConfig{Enabled: true},
 					GrpccheckStatus:           MetricConfig{Enabled: true},
 					GrpccheckTLSCertRemaining: MetricConfig{Enabled: true},
 				},
@@ -39,7 +38,6 @@ func TestMetricsBuilderConfig(t *testing.T) {
 				Metrics: MetricsConfig{
 					GrpccheckDuration:         MetricConfig{Enabled: false},
 					GrpccheckError:            MetricConfig{Enabled: false},
-					GrpccheckResponseSize:     MetricConfig{Enabled: false},
 					GrpccheckStatus:           MetricConfig{Enabled: false},
 					GrpccheckTLSCertRemaining: MetricConfig{Enabled: false},
 				},

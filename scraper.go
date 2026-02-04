@@ -5,7 +5,6 @@ package grpccheckreceiver // import "bou.ke/grpccheckreceiver"
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
 	"sync"
 	"time"
@@ -20,7 +19,6 @@ import (
 	"google.golang.org/grpc/credentials"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/peer"
-	"google.golang.org/protobuf/proto"
 
 	"bou.ke/grpccheckreceiver/internal/metadata"
 )
@@ -76,47 +74,46 @@ func (s *grpccheckScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 			continue
 		}
 
-		wg.Add(1)
-		go func(targetIdx int, clientConn *grpc.ClientConn) {
-			defer wg.Done()
-
-			target := s.cfg.Targets[targetIdx]
-			now := pcommon.NewTimestampFromTime(time.Now())
-
-			client := healthpb.NewHealthClient(clientConn)
-
-			var p peer.Peer
-			start := time.Now()
-			resp, err := client.Check(ctx, &healthpb.HealthCheckRequest{
-				Service: target.Service,
-			}, grpc.Peer(&p))
-			duration := time.Since(start).Milliseconds()
-
-			mux.Lock()
-			defer mux.Unlock()
-
-			if err != nil {
-				s.mb.RecordGrpccheckErrorDataPoint(now, int64(1), target.Endpoint, target.Service, err.Error())
-				s.mb.RecordGrpccheckStatusDataPoint(now, int64(0), target.Endpoint, target.Service)
-				return
-			}
-
-			s.mb.RecordGrpccheckDurationDataPoint(now, duration, target.Endpoint, target.Service)
-			s.mb.RecordGrpccheckResponseSizeDataPoint(now, int64(proto.Size(resp)), target.Endpoint, target.Service)
-
-			var statusValue int64
-			if resp.GetStatus() == healthpb.HealthCheckResponse_SERVING {
-				statusValue = 1
-			}
-			s.mb.RecordGrpccheckStatusDataPoint(now, statusValue, target.Endpoint, target.Service)
-
-			s.recordTLSCertMetrics(now, target.Endpoint, &p)
-		}(idx, conn)
+		target := s.cfg.Targets[idx]
+		wg.Go(func() {
+			s.record(ctx, mux, target, conn)
+		})
 	}
 
 	wg.Wait()
 
 	return s.mb.Emit(), nil
+}
+
+func (s *grpccheckScraper) record(ctx context.Context, mux sync.Mutex, target *targetConfig, conn *grpc.ClientConn) {
+	now := pcommon.NewTimestampFromTime(time.Now())
+
+	client := healthpb.NewHealthClient(conn)
+
+	var p peer.Peer
+	start := time.Now()
+	resp, err := client.Check(ctx, &healthpb.HealthCheckRequest{
+		Service: target.Service,
+	}, grpc.Peer(&p))
+	duration := time.Since(start).Milliseconds()
+
+	mux.Lock()
+	defer mux.Unlock()
+
+	s.mb.RecordGrpccheckDurationDataPoint(now, duration, target.Endpoint, target.Service)
+	var statusValue int64
+	if resp.GetStatus() == healthpb.HealthCheckResponse_SERVING {
+		statusValue = 1
+	}
+	s.mb.RecordGrpccheckStatusDataPoint(now, statusValue, target.Endpoint, target.Service)
+
+	s.recordTLSCertMetrics(now, target.Endpoint, &p)
+
+	if err != nil {
+		s.mb.RecordGrpccheckErrorDataPoint(now, int64(1), target.Endpoint, target.Service, err.Error())
+		return
+	}
+	s.mb.RecordGrpccheckErrorDataPoint(now, int64(0), target.Endpoint, target.Service, "")
 }
 
 func (s *grpccheckScraper) recordTLSCertMetrics(now pcommon.Timestamp, endpoint string, p *peer.Peer) {
@@ -129,11 +126,7 @@ func (s *grpccheckScraper) recordTLSCertMetrics(now pcommon.Timestamp, endpoint 
 		return
 	}
 
-	recordTLSCert(s.mb, now, endpoint, &tlsInfo.State)
-}
-
-func recordTLSCert(mb *metadata.MetricsBuilder, now pcommon.Timestamp, endpoint string, state *tls.ConnectionState) {
-	for _, cert := range state.PeerCertificates {
+	for _, cert := range tlsInfo.State.PeerCertificates {
 		issuer := cert.Issuer.String()
 		cn := cert.Subject.CommonName
 
@@ -146,7 +139,7 @@ func recordTLSCert(mb *metadata.MetricsBuilder, now pcommon.Timestamp, endpoint 
 		}
 
 		remaining := time.Until(cert.NotAfter).Seconds()
-		mb.RecordGrpccheckTLSCertRemainingDataPoint(now, int64(remaining), endpoint, issuer, cn, sans)
+		s.mb.RecordGrpccheckTLSCertRemainingDataPoint(now, int64(remaining), endpoint, issuer, cn, sans)
 	}
 }
 

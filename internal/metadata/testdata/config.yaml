@@ -5,8 +5,6 @@ all_set:
       enabled: true
     grpccheck.error:
       enabled: true
-    grpccheck.response.size:
-      enabled: true
     grpccheck.status:
       enabled: true
     grpccheck.tls.cert_remaining:
@@ -16,8 +14,6 @@ none_set:
     grpccheck.duration:
       enabled: false
     grpccheck.error:
-      enabled: false
-    grpccheck.response.size:
       enabled: false
     grpccheck.status:
       enabled: false

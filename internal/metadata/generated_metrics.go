@@ -118,58 +118,6 @@ func newMetricGrpccheckError(cfg MetricConfig) metricGrpccheckError {
 	return m
 }
 
-type metricGrpccheckResponseSize struct {
-	data     pmetric.Metric // data buffer for generated metric.
-	config   MetricConfig   // metric config provided by user.
-	capacity int            // max observed number of data points added to the metric.
-}
-
-// init fills grpccheck.response.size metric with initial data.
-func (m *metricGrpccheckResponseSize) init() {
-	m.data.SetName("grpccheck.response.size")
-	m.data.SetDescription("Size of health check response in bytes.")
-	m.data.SetUnit("By")
-	m.data.SetEmptyGauge()
-	m.data.Gauge().DataPoints().EnsureCapacity(m.capacity)
-}
-
-func (m *metricGrpccheckResponseSize) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string) {
-	if !m.config.Enabled {
-		return
-	}
-	dp := m.data.Gauge().DataPoints().AppendEmpty()
-	dp.SetStartTimestamp(start)
-	dp.SetTimestamp(ts)
-	dp.SetIntValue(val)
-	dp.Attributes().PutStr("grpc.endpoint", grpcEndpointAttributeValue)
-	dp.Attributes().PutStr("grpc.service", grpcServiceAttributeValue)
-}
-
-// updateCapacity saves max length of data point slices that will be used for the slice capacity.
-func (m *metricGrpccheckResponseSize) updateCapacity() {
-	if m.data.Gauge().DataPoints().Len() > m.capacity {
-		m.capacity = m.data.Gauge().DataPoints().Len()
-	}
-}
-
-// emit appends recorded metric data to a metrics slice and prepares it for recording another set of data points.
-func (m *metricGrpccheckResponseSize) emit(metrics pmetric.MetricSlice) {
-	if m.config.Enabled && m.data.Gauge().DataPoints().Len() > 0 {
-		m.updateCapacity()
-		m.data.MoveTo(metrics.AppendEmpty())
-		m.init()
-	}
-}
-
-func newMetricGrpccheckResponseSize(cfg MetricConfig) metricGrpccheckResponseSize {
-	m := metricGrpccheckResponseSize{config: cfg}
-	if cfg.Enabled {
-		m.data = pmetric.NewMetric()
-		m.init()
-	}
-	return m
-}
-
 type metricGrpccheckStatus struct {
 	data     pmetric.Metric // data buffer for generated metric.
 	config   MetricConfig   // metric config provided by user.
@@ -288,7 +236,6 @@ type MetricsBuilder struct {
 	buildInfo                       component.BuildInfo  // contains version information.
 	metricGrpccheckDuration         metricGrpccheckDuration
 	metricGrpccheckError            metricGrpccheckError
-	metricGrpccheckResponseSize     metricGrpccheckResponseSize
 	metricGrpccheckStatus           metricGrpccheckStatus
 	metricGrpccheckTLSCertRemaining metricGrpccheckTLSCertRemaining
 }
@@ -318,7 +265,6 @@ func NewMetricsBuilder(mbc MetricsBuilderConfig, settings receiver.Settings, opt
 		buildInfo:                       settings.BuildInfo,
 		metricGrpccheckDuration:         newMetricGrpccheckDuration(mbc.Metrics.GrpccheckDuration),
 		metricGrpccheckError:            newMetricGrpccheckError(mbc.Metrics.GrpccheckError),
-		metricGrpccheckResponseSize:     newMetricGrpccheckResponseSize(mbc.Metrics.GrpccheckResponseSize),
 		metricGrpccheckStatus:           newMetricGrpccheckStatus(mbc.Metrics.GrpccheckStatus),
 		metricGrpccheckTLSCertRemaining: newMetricGrpccheckTLSCertRemaining(mbc.Metrics.GrpccheckTLSCertRemaining),
 	}
@@ -388,7 +334,6 @@ func (mb *MetricsBuilder) EmitForResource(options ...ResourceMetricsOption) {
 	ils.Metrics().EnsureCapacity(mb.metricsCapacity)
 	mb.metricGrpccheckDuration.emit(ils.Metrics())
 	mb.metricGrpccheckError.emit(ils.Metrics())
-	mb.metricGrpccheckResponseSize.emit(ils.Metrics())
 	mb.metricGrpccheckStatus.emit(ils.Metrics())
 	mb.metricGrpccheckTLSCertRemaining.emit(ils.Metrics())
 
@@ -420,11 +365,6 @@ func (mb *MetricsBuilder) RecordGrpccheckDurationDataPoint(ts pcommon.Timestamp,
 // RecordGrpccheckErrorDataPoint adds a data point to grpccheck.error metric.
 func (mb *MetricsBuilder) RecordGrpccheckErrorDataPoint(ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string, errorMessageAttributeValue string) {
 	mb.metricGrpccheckError.recordDataPoint(mb.startTime, ts, val, grpcEndpointAttributeValue, grpcServiceAttributeValue, errorMessageAttributeValue)
-}
-
-// RecordGrpccheckResponseSizeDataPoint adds a data point to grpccheck.response.size metric.
-func (mb *MetricsBuilder) RecordGrpccheckResponseSizeDataPoint(ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string) {
-	mb.metricGrpccheckResponseSize.recordDataPoint(mb.startTime, ts, val, grpcEndpointAttributeValue, grpcServiceAttributeValue)
 }
 
 // RecordGrpccheckStatusDataPoint adds a data point to grpccheck.status metric.

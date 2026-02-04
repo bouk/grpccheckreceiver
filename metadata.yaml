@@ -51,15 +51,6 @@ metrics:
       monotonic: false
     unit: "{error}"
     attributes: [grpc.endpoint, grpc.service, error.message]
-  grpccheck.response.size:
-    description: Size of health check response in bytes.
-    enabled: false
-    stability:
-      level: development
-    gauge:
-      value_type: int
-    unit: "By"
-    attributes: [grpc.endpoint, grpc.service]
   grpccheck.status:
     description: 1 if the gRPC health check resulted in a SERVING status, otherwise 0.
     enabled: true

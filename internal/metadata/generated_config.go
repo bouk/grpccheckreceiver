@@ -29,7 +29,6 @@ func (ms *MetricConfig) Unmarshal(parser *confmap.Conf) error {
 type MetricsConfig struct {
 	GrpccheckDuration         MetricConfig `mapstructure:"grpccheck.duration"`
 	GrpccheckError            MetricConfig `mapstructure:"grpccheck.error"`
-	GrpccheckResponseSize     MetricConfig `mapstructure:"grpccheck.response.size"`
 	GrpccheckStatus           MetricConfig `mapstructure:"grpccheck.status"`
 	GrpccheckTLSCertRemaining MetricConfig `mapstructure:"grpccheck.tls.cert_remaining"`
 }
@@ -41,9 +40,6 @@ func DefaultMetricsConfig() MetricsConfig {
 		},
 		GrpccheckError: MetricConfig{
 			Enabled: true,
-		},
-		GrpccheckResponseSize: MetricConfig{
-			Enabled: false,
 		},
 		GrpccheckStatus: MetricConfig{
 			Enabled: true,
