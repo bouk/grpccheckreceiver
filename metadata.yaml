@@ -9,16 +9,14 @@ status:
     active: [bouk]
 
 resource_attributes:
+
+attributes:
   net.peer.name:
     description: Remote hostname or similar.
-    enabled: true
     type: string
   net.peer.ip:
     description: Remote address of the peer (dotted decimal for IPv4 or RFC5952 for IPv6).
-    enabled: true
     type: string
-
-attributes:
   error.message:
     description: Error message recorded during check.
     type: string
@@ -47,7 +45,7 @@ metrics:
     gauge:
       value_type: int
     unit: ms
-    attributes: [grpc.endpoint, grpc.service]
+    attributes: [grpc.endpoint, grpc.service, net.peer.name, net.peer.ip]
   grpccheck.error:
     description: Records errors occurring during gRPC health check.
     enabled: true
@@ -58,7 +56,7 @@ metrics:
       aggregation_temporality: cumulative
       monotonic: false
     unit: "{error}"
-    attributes: [grpc.endpoint, grpc.service, error.message]
+    attributes: [grpc.endpoint, grpc.service, net.peer.name, net.peer.ip, error.message]
   grpccheck.status:
     description: 1 if the gRPC health check resulted in a SERVING status, otherwise 0.
     enabled: true
@@ -69,7 +67,7 @@ metrics:
       aggregation_temporality: cumulative
       monotonic: false
     unit: "1"
-    attributes: [grpc.endpoint, grpc.service]
+    attributes: [grpc.endpoint, grpc.service, net.peer.name, net.peer.ip]
   grpccheck.tls.cert_remaining:
     description: Time in seconds until certificate expiry, as specified by `NotAfter` field in the x.509 certificate. Negative values represent time in seconds since expiration.
     enabled: false

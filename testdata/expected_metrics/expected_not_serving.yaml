@@ -1,12 +1,5 @@
 resourceMetrics:
-  - resource:
-      attributes:
-        - key: net.peer.ip
-          value:
-            stringValue: "127.0.0.1"
-        - key: net.peer.name
-          value:
-            stringValue: "127.0.0.1"
+  - resource: {}
     scopeMetrics:
       - metrics:
           - description: Measures the duration of the gRPC health check.
@@ -21,6 +14,12 @@ resourceMetrics:
                     - key: grpc.service
                       value:
                         stringValue: my.service
+                    - key: net.peer.ip
+                      value:
+                        stringValue: "127.0.0.1"
+                    - key: net.peer.name
+                      value:
+                        stringValue: "127.0.0.1"
                   startTimeUnixNano: "1000000"
                   timeUnixNano: "2000000"
             unit: ms
@@ -40,6 +39,12 @@ resourceMetrics:
                     - key: grpc.service
                       value:
                         stringValue: my.service
+                    - key: net.peer.ip
+                      value:
+                        stringValue: "127.0.0.1"
+                    - key: net.peer.name
+                      value:
+                        stringValue: "127.0.0.1"
                   startTimeUnixNano: "1000000"
                   timeUnixNano: "2000000"
             unit: "{error}"
@@ -56,6 +61,12 @@ resourceMetrics:
                     - key: grpc.service
                       value:
                         stringValue: my.service
+                    - key: net.peer.ip
+                      value:
+                        stringValue: "127.0.0.1"
+                    - key: net.peer.name
+                      value:
+                        stringValue: "127.0.0.1"
                   startTimeUnixNano: "1000000"
                   timeUnixNano: "2000000"
             unit: "1"

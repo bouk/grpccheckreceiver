@@ -26,7 +26,7 @@ func (m *metricGrpccheckDuration) init() {
 	m.data.Gauge().DataPoints().EnsureCapacity(m.capacity)
 }
 
-func (m *metricGrpccheckDuration) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string) {
+func (m *metricGrpccheckDuration) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string, netPeerNameAttributeValue string, netPeerIpAttributeValue string) {
 	if !m.config.Enabled {
 		return
 	}
@@ -36,6 +36,8 @@ func (m *metricGrpccheckDuration) recordDataPoint(start pcommon.Timestamp, ts pc
 	dp.SetIntValue(val)
 	dp.Attributes().PutStr("grpc.endpoint", grpcEndpointAttributeValue)
 	dp.Attributes().PutStr("grpc.service", grpcServiceAttributeValue)
+	dp.Attributes().PutStr("net.peer.name", netPeerNameAttributeValue)
+	dp.Attributes().PutStr("net.peer.ip", netPeerIpAttributeValue)
 }
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
@@ -80,7 +82,7 @@ func (m *metricGrpccheckError) init() {
 	m.data.Sum().DataPoints().EnsureCapacity(m.capacity)
 }
 
-func (m *metricGrpccheckError) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string, errorMessageAttributeValue string) {
+func (m *metricGrpccheckError) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string, netPeerNameAttributeValue string, netPeerIpAttributeValue string, errorMessageAttributeValue string) {
 	if !m.config.Enabled {
 		return
 	}
@@ -90,6 +92,8 @@ func (m *metricGrpccheckError) recordDataPoint(start pcommon.Timestamp, ts pcomm
 	dp.SetIntValue(val)
 	dp.Attributes().PutStr("grpc.endpoint", grpcEndpointAttributeValue)
 	dp.Attributes().PutStr("grpc.service", grpcServiceAttributeValue)
+	dp.Attributes().PutStr("net.peer.name", netPeerNameAttributeValue)
+	dp.Attributes().PutStr("net.peer.ip", netPeerIpAttributeValue)
 	dp.Attributes().PutStr("error.message", errorMessageAttributeValue)
 }
 
@@ -135,7 +139,7 @@ func (m *metricGrpccheckStatus) init() {
 	m.data.Sum().DataPoints().EnsureCapacity(m.capacity)
 }
 
-func (m *metricGrpccheckStatus) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string) {
+func (m *metricGrpccheckStatus) recordDataPoint(start pcommon.Timestamp, ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string, netPeerNameAttributeValue string, netPeerIpAttributeValue string) {
 	if !m.config.Enabled {
 		return
 	}
@@ -145,6 +149,8 @@ func (m *metricGrpccheckStatus) recordDataPoint(start pcommon.Timestamp, ts pcom
 	dp.SetIntValue(val)
 	dp.Attributes().PutStr("grpc.endpoint", grpcEndpointAttributeValue)
 	dp.Attributes().PutStr("grpc.service", grpcServiceAttributeValue)
+	dp.Attributes().PutStr("net.peer.name", netPeerNameAttributeValue)
+	dp.Attributes().PutStr("net.peer.ip", netPeerIpAttributeValue)
 }
 
 // updateCapacity saves max length of data point slices that will be used for the slice capacity.
@@ -358,18 +364,18 @@ func (mb *MetricsBuilder) Emit(options ...ResourceMetricsOption) pmetric.Metrics
 }
 
 // RecordGrpccheckDurationDataPoint adds a data point to grpccheck.duration metric.
-func (mb *MetricsBuilder) RecordGrpccheckDurationDataPoint(ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string) {
-	mb.metricGrpccheckDuration.recordDataPoint(mb.startTime, ts, val, grpcEndpointAttributeValue, grpcServiceAttributeValue)
+func (mb *MetricsBuilder) RecordGrpccheckDurationDataPoint(ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string, netPeerNameAttributeValue string, netPeerIpAttributeValue string) {
+	mb.metricGrpccheckDuration.recordDataPoint(mb.startTime, ts, val, grpcEndpointAttributeValue, grpcServiceAttributeValue, netPeerNameAttributeValue, netPeerIpAttributeValue)
 }
 
 // RecordGrpccheckErrorDataPoint adds a data point to grpccheck.error metric.
-func (mb *MetricsBuilder) RecordGrpccheckErrorDataPoint(ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string, errorMessageAttributeValue string) {
-	mb.metricGrpccheckError.recordDataPoint(mb.startTime, ts, val, grpcEndpointAttributeValue, grpcServiceAttributeValue, errorMessageAttributeValue)
+func (mb *MetricsBuilder) RecordGrpccheckErrorDataPoint(ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string, netPeerNameAttributeValue string, netPeerIpAttributeValue string, errorMessageAttributeValue string) {
+	mb.metricGrpccheckError.recordDataPoint(mb.startTime, ts, val, grpcEndpointAttributeValue, grpcServiceAttributeValue, netPeerNameAttributeValue, netPeerIpAttributeValue, errorMessageAttributeValue)
 }
 
 // RecordGrpccheckStatusDataPoint adds a data point to grpccheck.status metric.
-func (mb *MetricsBuilder) RecordGrpccheckStatusDataPoint(ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string) {
-	mb.metricGrpccheckStatus.recordDataPoint(mb.startTime, ts, val, grpcEndpointAttributeValue, grpcServiceAttributeValue)
+func (mb *MetricsBuilder) RecordGrpccheckStatusDataPoint(ts pcommon.Timestamp, val int64, grpcEndpointAttributeValue string, grpcServiceAttributeValue string, netPeerNameAttributeValue string, netPeerIpAttributeValue string) {
+	mb.metricGrpccheckStatus.recordDataPoint(mb.startTime, ts, val, grpcEndpointAttributeValue, grpcServiceAttributeValue, netPeerNameAttributeValue, netPeerIpAttributeValue)
 }
 
 // RecordGrpccheckTLSCertRemainingDataPoint adds a data point to grpccheck.tls.cert_remaining metric.

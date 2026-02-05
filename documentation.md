@@ -26,6 +26,8 @@ Measures the duration of the gRPC health check.
 | ---- | ----------- | ------ |
 | grpc.endpoint | gRPC endpoint. | Any Str |
 | grpc.service | gRPC health check service name. | Any Str |
+| net.peer.name | Remote hostname or similar. | Any Str |
+| net.peer.ip | Remote address of the peer (dotted decimal for IPv4 or RFC5952 for IPv6). | Any Str |
 
 ### grpccheck.error
 
@@ -41,6 +43,8 @@ Records errors occurring during gRPC health check.
 | ---- | ----------- | ------ |
 | grpc.endpoint | gRPC endpoint. | Any Str |
 | grpc.service | gRPC health check service name. | Any Str |
+| net.peer.name | Remote hostname or similar. | Any Str |
+| net.peer.ip | Remote address of the peer (dotted decimal for IPv4 or RFC5952 for IPv6). | Any Str |
 | error.message | Error message recorded during check. | Any Str |
 
 ### grpccheck.status
@@ -57,6 +61,8 @@ Records errors occurring during gRPC health check.
 | ---- | ----------- | ------ |
 | grpc.endpoint | gRPC endpoint. | Any Str |
 | grpc.service | gRPC health check service name. | Any Str |
+| net.peer.name | Remote hostname or similar. | Any Str |
+| net.peer.ip | Remote address of the peer (dotted decimal for IPv4 or RFC5952 for IPv6). | Any Str |
 
 ## Optional Metrics
 
