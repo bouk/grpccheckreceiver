@@ -98,7 +98,7 @@ func TestLoadConfig(t *testing.T) {
 					{
 						ClientConfig: configgrpc.ClientConfig{
 							Endpoint: "localhost:50051",
-							TLSSetting: configtls.ClientConfig{
+							TLS: configtls.ClientConfig{
 								Insecure: true,
 							},
 						},

@@ -35,7 +35,7 @@ type grpccheckScraper struct {
 func (s *grpccheckScraper) start(ctx context.Context, host component.Host) error {
 	var err error
 	for _, target := range s.cfg.Targets {
-		conn, connErr := target.ToClientConn(ctx, host, s.settings)
+		conn, connErr := target.ToClientConn(ctx, host.GetExtensions(), s.settings)
 		if connErr != nil {
 			s.settings.Logger.Error("failed to create gRPC client connection",
 				zap.String("endpoint", target.Endpoint),
