@@ -6,6 +6,7 @@ package grpccheckreceiver // import "bou.ke/grpccheckreceiver"
 import (
 	"context"
 	"errors"
+	"net"
 	"sync"
 	"time"
 
@@ -111,9 +112,20 @@ func (s *grpccheckScraper) record(ctx context.Context, mux sync.Mutex, target *t
 
 	if err != nil {
 		s.mb.RecordGrpccheckErrorDataPoint(now, int64(1), target.Endpoint, target.Service, err.Error())
-		return
+	} else {
+		s.mb.RecordGrpccheckErrorDataPoint(now, int64(0), target.Endpoint, target.Service, "")
 	}
-	s.mb.RecordGrpccheckErrorDataPoint(now, int64(0), target.Endpoint, target.Service, "")
+
+	res := pcommon.NewResource()
+	if host, _, splitErr := net.SplitHostPort(target.Endpoint); splitErr == nil {
+		res.Attributes().PutStr("net.peer.name", host)
+	}
+	if p.Addr != nil {
+		if peerHost, _, splitErr := net.SplitHostPort(p.Addr.String()); splitErr == nil {
+			res.Attributes().PutStr("net.peer.ip", peerHost)
+		}
+	}
+	s.mb.EmitForResource(metadata.WithResource(res))
 }
 
 func (s *grpccheckScraper) recordTLSCertMetrics(now pcommon.Timestamp, endpoint string, p *peer.Peer) {

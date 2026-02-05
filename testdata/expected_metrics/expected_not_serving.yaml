@@ -1,5 +1,12 @@
 resourceMetrics:
-  - resource: {}
+  - resource:
+      attributes:
+        - key: net.peer.ip
+          value:
+            stringValue: "127.0.0.1"
+        - key: net.peer.name
+          value:
+            stringValue: "127.0.0.1"
     scopeMetrics:
       - metrics:
           - description: Measures the duration of the gRPC health check.

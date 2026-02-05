@@ -9,6 +9,14 @@ status:
     active: [bouk]
 
 resource_attributes:
+  net.peer.name:
+    description: Remote hostname or similar.
+    enabled: true
+    type: string
+  net.peer.ip:
+    description: Remote address of the peer (dotted decimal for IPv4 or RFC5952 for IPv6).
+    enabled: true
+    type: string
 
 attributes:
   error.message:
