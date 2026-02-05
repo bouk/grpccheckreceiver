@@ -94,6 +94,7 @@ func TestScraper(t *testing.T) {
 			pmetrictest.IgnoreTimestamp(),
 			pmetrictest.IgnoreStartTimestamp(),
 			pmetrictest.IgnoreMetricAttributeValue("grpc.endpoint"),
+			pmetrictest.IgnoreMetricAttributeValue("net.peer.ip"),
 		),
 	)
 }
@@ -138,6 +139,7 @@ func TestScraperNotServing(t *testing.T) {
 			pmetrictest.IgnoreTimestamp(),
 			pmetrictest.IgnoreStartTimestamp(),
 			pmetrictest.IgnoreMetricAttributeValue("grpc.endpoint"),
+			pmetrictest.IgnoreMetricAttributeValue("net.peer.ip"),
 		),
 	)
 }

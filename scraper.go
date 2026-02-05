@@ -6,6 +6,7 @@ package grpccheckreceiver // import "bou.ke/grpccheckreceiver"
 import (
 	"context"
 	"errors"
+	"net"
 	"sync"
 	"time"
 
@@ -76,7 +77,7 @@ func (s *grpccheckScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 
 		target := s.cfg.Targets[idx]
 		wg.Go(func() {
-			s.record(ctx, mux, target, conn)
+			s.record(ctx, &mux, target, conn)
 		})
 	}
 
@@ -85,7 +86,7 @@ func (s *grpccheckScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 	return s.mb.Emit(), nil
 }
 
-func (s *grpccheckScraper) record(ctx context.Context, mux sync.Mutex, target *targetConfig, conn *grpc.ClientConn) {
+func (s *grpccheckScraper) record(ctx context.Context, mux *sync.Mutex, target *targetConfig, conn *grpc.ClientConn) {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
 	client := healthpb.NewHealthClient(conn)
@@ -100,20 +101,30 @@ func (s *grpccheckScraper) record(ctx context.Context, mux sync.Mutex, target *t
 	mux.Lock()
 	defer mux.Unlock()
 
-	s.mb.RecordGrpccheckDurationDataPoint(now, duration, target.Endpoint, target.Service)
+	var peerName, peerIP string
+	if host, _, splitErr := net.SplitHostPort(target.Endpoint); splitErr == nil {
+		peerName = host
+	}
+	if p.Addr != nil {
+		if peerHost, _, splitErr := net.SplitHostPort(p.Addr.String()); splitErr == nil {
+			peerIP = peerHost
+		}
+	}
+
+	s.mb.RecordGrpccheckDurationDataPoint(now, duration, target.Endpoint, target.Service, peerName, peerIP)
 	var statusValue int64
 	if resp.GetStatus() == healthpb.HealthCheckResponse_SERVING {
 		statusValue = 1
 	}
-	s.mb.RecordGrpccheckStatusDataPoint(now, statusValue, target.Endpoint, target.Service)
+	s.mb.RecordGrpccheckStatusDataPoint(now, statusValue, target.Endpoint, target.Service, peerName, peerIP)
 
 	s.recordTLSCertMetrics(now, target.Endpoint, &p)
 
 	if err != nil {
-		s.mb.RecordGrpccheckErrorDataPoint(now, int64(1), target.Endpoint, target.Service, err.Error())
-		return
+		s.mb.RecordGrpccheckErrorDataPoint(now, int64(1), target.Endpoint, target.Service, peerName, peerIP, err.Error())
+	} else {
+		s.mb.RecordGrpccheckErrorDataPoint(now, int64(0), target.Endpoint, target.Service, peerName, peerIP, "")
 	}
-	s.mb.RecordGrpccheckErrorDataPoint(now, int64(0), target.Endpoint, target.Service, "")
 }
 
 func (s *grpccheckScraper) recordTLSCertMetrics(now pcommon.Timestamp, endpoint string, p *peer.Peer) {
