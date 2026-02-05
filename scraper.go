@@ -77,7 +77,7 @@ func (s *grpccheckScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 
 		target := s.cfg.Targets[idx]
 		wg.Go(func() {
-			s.record(ctx, mux, target, conn)
+			s.record(ctx, &mux, target, conn)
 		})
 	}
 
@@ -86,7 +86,7 @@ func (s *grpccheckScraper) scrape(ctx context.Context) (pmetric.Metrics, error) 
 	return s.mb.Emit(), nil
 }
 
-func (s *grpccheckScraper) record(ctx context.Context, mux sync.Mutex, target *targetConfig, conn *grpc.ClientConn) {
+func (s *grpccheckScraper) record(ctx context.Context, mux *sync.Mutex, target *targetConfig, conn *grpc.ClientConn) {
 	now := pcommon.NewTimestampFromTime(time.Now())
 
 	client := healthpb.NewHealthClient(conn)
