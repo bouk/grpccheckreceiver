@@ -61,18 +61,18 @@ func TestMetricsBuilder(t *testing.T) {
 
 			defaultMetricsCount++
 			allMetricsCount++
-			mb.RecordGrpccheckDurationDataPoint(ts, 1, "grpc.endpoint-val", "grpc.service-val", "net.peer.name-val", "net.peer.ip-val")
+			mb.RecordGrpccheckDurationDataPoint(ts, 1, "name-val", "grpc.endpoint-val", "grpc.service-val", "net.peer.name-val")
 
 			defaultMetricsCount++
 			allMetricsCount++
-			mb.RecordGrpccheckErrorDataPoint(ts, 1, "grpc.endpoint-val", "grpc.service-val", "net.peer.name-val", "net.peer.ip-val", "error.message-val")
+			mb.RecordGrpccheckErrorDataPoint(ts, 1, "name-val", "grpc.endpoint-val", "grpc.service-val", "net.peer.name-val")
 
 			defaultMetricsCount++
 			allMetricsCount++
-			mb.RecordGrpccheckStatusDataPoint(ts, 1, "grpc.endpoint-val", "grpc.service-val", "net.peer.name-val", "net.peer.ip-val")
+			mb.RecordGrpccheckStatusDataPoint(ts, 1, "name-val", "grpc.endpoint-val", "grpc.service-val", "net.peer.name-val")
 
 			allMetricsCount++
-			mb.RecordGrpccheckTLSCertRemainingDataPoint(ts, 1, "grpc.endpoint-val", "grpc.tls.issuer-val", "grpc.tls.cn-val", []any{"grpc.tls.san-item1", "grpc.tls.san-item2"})
+			mb.RecordGrpccheckTLSCertRemainingDataPoint(ts, 1, "grpc.endpoint-val")
 
 			res := pcommon.NewResource()
 			metrics := mb.Emit(WithResource(res))
@@ -108,7 +108,10 @@ func TestMetricsBuilder(t *testing.T) {
 					assert.Equal(t, ts, dp.Timestamp())
 					assert.Equal(t, pmetric.NumberDataPointValueTypeInt, dp.ValueType())
 					assert.Equal(t, int64(1), dp.IntValue())
-					attrVal, ok := dp.Attributes().Get("grpc.endpoint")
+					attrVal, ok := dp.Attributes().Get("name")
+					assert.True(t, ok)
+					assert.EqualValues(t, "name-val", attrVal.Str())
+					attrVal, ok = dp.Attributes().Get("grpc.endpoint")
 					assert.True(t, ok)
 					assert.EqualValues(t, "grpc.endpoint-val", attrVal.Str())
 					attrVal, ok = dp.Attributes().Get("grpc.service")
@@ -117,9 +120,6 @@ func TestMetricsBuilder(t *testing.T) {
 					attrVal, ok = dp.Attributes().Get("net.peer.name")
 					assert.True(t, ok)
 					assert.EqualValues(t, "net.peer.name-val", attrVal.Str())
-					attrVal, ok = dp.Attributes().Get("net.peer.ip")
-					assert.True(t, ok)
-					assert.EqualValues(t, "net.peer.ip-val", attrVal.Str())
 				case "grpccheck.error":
 					assert.False(t, validatedMetrics["grpccheck.error"], "Found a duplicate in the metrics slice: grpccheck.error")
 					validatedMetrics["grpccheck.error"] = true
@@ -134,7 +134,10 @@ func TestMetricsBuilder(t *testing.T) {
 					assert.Equal(t, ts, dp.Timestamp())
 					assert.Equal(t, pmetric.NumberDataPointValueTypeInt, dp.ValueType())
 					assert.Equal(t, int64(1), dp.IntValue())
-					attrVal, ok := dp.Attributes().Get("grpc.endpoint")
+					attrVal, ok := dp.Attributes().Get("name")
+					assert.True(t, ok)
+					assert.EqualValues(t, "name-val", attrVal.Str())
+					attrVal, ok = dp.Attributes().Get("grpc.endpoint")
 					assert.True(t, ok)
 					assert.EqualValues(t, "grpc.endpoint-val", attrVal.Str())
 					attrVal, ok = dp.Attributes().Get("grpc.service")
@@ -143,12 +146,6 @@ func TestMetricsBuilder(t *testing.T) {
 					attrVal, ok = dp.Attributes().Get("net.peer.name")
 					assert.True(t, ok)
 					assert.EqualValues(t, "net.peer.name-val", attrVal.Str())
-					attrVal, ok = dp.Attributes().Get("net.peer.ip")
-					assert.True(t, ok)
-					assert.EqualValues(t, "net.peer.ip-val", attrVal.Str())
-					attrVal, ok = dp.Attributes().Get("error.message")
-					assert.True(t, ok)
-					assert.EqualValues(t, "error.message-val", attrVal.Str())
 				case "grpccheck.status":
 					assert.False(t, validatedMetrics["grpccheck.status"], "Found a duplicate in the metrics slice: grpccheck.status")
 					validatedMetrics["grpccheck.status"] = true
@@ -163,7 +160,10 @@ func TestMetricsBuilder(t *testing.T) {
 					assert.Equal(t, ts, dp.Timestamp())
 					assert.Equal(t, pmetric.NumberDataPointValueTypeInt, dp.ValueType())
 					assert.Equal(t, int64(1), dp.IntValue())
-					attrVal, ok := dp.Attributes().Get("grpc.endpoint")
+					attrVal, ok := dp.Attributes().Get("name")
+					assert.True(t, ok)
+					assert.EqualValues(t, "name-val", attrVal.Str())
+					attrVal, ok = dp.Attributes().Get("grpc.endpoint")
 					assert.True(t, ok)
 					assert.EqualValues(t, "grpc.endpoint-val", attrVal.Str())
 					attrVal, ok = dp.Attributes().Get("grpc.service")
@@ -172,9 +172,6 @@ func TestMetricsBuilder(t *testing.T) {
 					attrVal, ok = dp.Attributes().Get("net.peer.name")
 					assert.True(t, ok)
 					assert.EqualValues(t, "net.peer.name-val", attrVal.Str())
-					attrVal, ok = dp.Attributes().Get("net.peer.ip")
-					assert.True(t, ok)
-					assert.EqualValues(t, "net.peer.ip-val", attrVal.Str())
 				case "grpccheck.tls.cert_remaining":
 					assert.False(t, validatedMetrics["grpccheck.tls.cert_remaining"], "Found a duplicate in the metrics slice: grpccheck.tls.cert_remaining")
 					validatedMetrics["grpccheck.tls.cert_remaining"] = true
@@ -190,15 +187,6 @@ func TestMetricsBuilder(t *testing.T) {
 					attrVal, ok := dp.Attributes().Get("grpc.endpoint")
 					assert.True(t, ok)
 					assert.EqualValues(t, "grpc.endpoint-val", attrVal.Str())
-					attrVal, ok = dp.Attributes().Get("grpc.tls.issuer")
-					assert.True(t, ok)
-					assert.EqualValues(t, "grpc.tls.issuer-val", attrVal.Str())
-					attrVal, ok = dp.Attributes().Get("grpc.tls.cn")
-					assert.True(t, ok)
-					assert.EqualValues(t, "grpc.tls.cn-val", attrVal.Str())
-					attrVal, ok = dp.Attributes().Get("grpc.tls.san")
-					assert.True(t, ok)
-					assert.EqualValues(t, []any{"grpc.tls.san-item1", "grpc.tls.san-item2"}, attrVal.Slice().AsRaw())
 				}
 			}
 		})

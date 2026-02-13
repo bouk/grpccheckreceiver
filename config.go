@@ -32,6 +32,7 @@ type Config struct {
 type targetConfig struct {
 	configgrpc.ClientConfig `mapstructure:",squash"`
 	Service                 string `mapstructure:"service"`
+	Name                    string `mapstructure:"name"`
 }
 
 func (cfg *Config) Validate() error {

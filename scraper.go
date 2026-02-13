@@ -101,29 +101,29 @@ func (s *grpccheckScraper) record(ctx context.Context, mux *sync.Mutex, target *
 	mux.Lock()
 	defer mux.Unlock()
 
-	var peerName, peerIP string
+	var peerName string
 	if host, _, splitErr := net.SplitHostPort(target.Endpoint); splitErr == nil {
 		peerName = host
 	}
-	if p.Addr != nil {
-		if peerHost, _, splitErr := net.SplitHostPort(p.Addr.String()); splitErr == nil {
-			peerIP = peerHost
-		}
+
+	name := target.Name
+	if name == "" {
+		name = peerName
 	}
 
-	s.mb.RecordGrpccheckDurationDataPoint(now, duration, target.Endpoint, target.Service, peerName, peerIP)
+	s.mb.RecordGrpccheckDurationDataPoint(now, duration, name, target.Endpoint, target.Service, peerName)
 	var statusValue int64
 	if resp.GetStatus() == healthpb.HealthCheckResponse_SERVING {
 		statusValue = 1
 	}
-	s.mb.RecordGrpccheckStatusDataPoint(now, statusValue, target.Endpoint, target.Service, peerName, peerIP)
+	s.mb.RecordGrpccheckStatusDataPoint(now, statusValue, name, target.Endpoint, target.Service, peerName)
 
 	s.recordTLSCertMetrics(now, target.Endpoint, &p)
 
 	if err != nil {
-		s.mb.RecordGrpccheckErrorDataPoint(now, int64(1), target.Endpoint, target.Service, peerName, peerIP, err.Error())
+		s.mb.RecordGrpccheckErrorDataPoint(now, int64(1), name, target.Endpoint, target.Service, peerName)
 	} else {
-		s.mb.RecordGrpccheckErrorDataPoint(now, int64(0), target.Endpoint, target.Service, peerName, peerIP, "")
+		s.mb.RecordGrpccheckErrorDataPoint(now, int64(0), name, target.Endpoint, target.Service, peerName)
 	}
 }
 
@@ -138,19 +138,8 @@ func (s *grpccheckScraper) recordTLSCertMetrics(now pcommon.Timestamp, endpoint 
 	}
 
 	for _, cert := range tlsInfo.State.PeerCertificates {
-		issuer := cert.Issuer.String()
-		cn := cert.Subject.CommonName
-
-		sans := make([]any, 0, len(cert.DNSNames)+len(cert.IPAddresses))
-		for _, dns := range cert.DNSNames {
-			sans = append(sans, dns)
-		}
-		for _, ip := range cert.IPAddresses {
-			sans = append(sans, ip.String())
-		}
-
 		remaining := time.Until(cert.NotAfter).Seconds()
-		s.mb.RecordGrpccheckTLSCertRemainingDataPoint(now, int64(remaining), endpoint, issuer, cn, sans)
+		s.mb.RecordGrpccheckTLSCertRemainingDataPoint(now, int64(remaining), endpoint)
 	}
 }
 

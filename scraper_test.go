@@ -144,6 +144,51 @@ func TestScraperNotServing(t *testing.T) {
 	)
 }
 
+func TestScraperCustomName(t *testing.T) {
+	srv := newMockHealthServer(t)
+	srv.health.SetServingStatus("", healthpb.HealthCheckResponse_SERVING)
+	defer srv.shutdown()
+
+	expectedFile := filepath.Join("testdata", "expected_metrics", "expected_custom_name.yaml")
+	expectedMetrics, err := golden.ReadMetrics(expectedFile)
+	require.NoError(t, err)
+
+	conn, err := grpc.NewClient(srv.addr(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	require.NoError(t, err)
+	defer conn.Close()
+
+	cfg := &Config{
+		MetricsBuilderConfig: metadata.DefaultMetricsBuilderConfig(),
+		Targets: []*targetConfig{
+			{
+				ClientConfig: configgrpc.ClientConfig{
+					Endpoint: srv.addr(),
+				},
+				Name: "my-server",
+			},
+		},
+	}
+
+	settings := receivertest.NewNopSettings(metadata.Type)
+	scraper := newScraper(cfg, settings)
+	scraper.conns = []*grpc.ClientConn{conn}
+
+	actualMetrics, err := scraper.scrape(t.Context())
+	require.NoError(t, err)
+
+	require.NoError(t,
+		pmetrictest.CompareMetrics(
+			expectedMetrics,
+			actualMetrics,
+			pmetrictest.IgnoreMetricValues("grpccheck.duration"),
+			pmetrictest.IgnoreTimestamp(),
+			pmetrictest.IgnoreStartTimestamp(),
+			pmetrictest.IgnoreMetricAttributeValue("grpc.endpoint"),
+			pmetrictest.IgnoreMetricAttributeValue("net.peer.ip"),
+		),
+	)
+}
+
 func TestScraperConnectionError(t *testing.T) {
 	// Create a connection to a non-existent endpoint
 	conn, err := grpc.NewClient("127.0.0.1:1", grpc.WithTransportCredentials(insecure.NewCredentials()))

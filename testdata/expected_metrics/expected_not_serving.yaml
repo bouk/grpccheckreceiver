@@ -14,7 +14,7 @@ resourceMetrics:
                     - key: grpc.service
                       value:
                         stringValue: my.service
-                    - key: net.peer.ip
+                    - key: name
                       value:
                         stringValue: "127.0.0.1"
                     - key: net.peer.name
@@ -30,16 +30,13 @@ resourceMetrics:
               dataPoints:
                 - asInt: "0"
                   attributes:
-                    - key: error.message
-                      value:
-                        stringValue: ""
                     - key: grpc.endpoint
                       value:
                         stringValue: 127.0.0.1:0
                     - key: grpc.service
                       value:
                         stringValue: my.service
-                    - key: net.peer.ip
+                    - key: name
                       value:
                         stringValue: "127.0.0.1"
                     - key: net.peer.name
@@ -61,7 +58,7 @@ resourceMetrics:
                     - key: grpc.service
                       value:
                         stringValue: my.service
-                    - key: net.peer.ip
+                    - key: name
                       value:
                         stringValue: "127.0.0.1"
                     - key: net.peer.name

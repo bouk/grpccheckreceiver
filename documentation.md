@@ -24,10 +24,10 @@ Measures the duration of the gRPC health check.
 
 | Name | Description | Values |
 | ---- | ----------- | ------ |
+| name | Human-readable name for the target. | Any Str |
 | grpc.endpoint | gRPC endpoint. | Any Str |
 | grpc.service | gRPC health check service name. | Any Str |
 | net.peer.name | Remote hostname or similar. | Any Str |
-| net.peer.ip | Remote address of the peer (dotted decimal for IPv4 or RFC5952 for IPv6). | Any Str |
 
 ### grpccheck.error
 
@@ -41,11 +41,10 @@ Records errors occurring during gRPC health check.
 
 | Name | Description | Values |
 | ---- | ----------- | ------ |
+| name | Human-readable name for the target. | Any Str |
 | grpc.endpoint | gRPC endpoint. | Any Str |
 | grpc.service | gRPC health check service name. | Any Str |
 | net.peer.name | Remote hostname or similar. | Any Str |
-| net.peer.ip | Remote address of the peer (dotted decimal for IPv4 or RFC5952 for IPv6). | Any Str |
-| error.message | Error message recorded during check. | Any Str |
 
 ### grpccheck.status
 
@@ -59,10 +58,10 @@ Records errors occurring during gRPC health check.
 
 | Name | Description | Values |
 | ---- | ----------- | ------ |
+| name | Human-readable name for the target. | Any Str |
 | grpc.endpoint | gRPC endpoint. | Any Str |
 | grpc.service | gRPC health check service name. | Any Str |
 | net.peer.name | Remote hostname or similar. | Any Str |
-| net.peer.ip | Remote address of the peer (dotted decimal for IPv4 or RFC5952 for IPv6). | Any Str |
 
 ## Optional Metrics
 
@@ -87,6 +86,3 @@ Time in seconds until certificate expiry, as specified by `NotAfter` field in th
 | Name | Description | Values |
 | ---- | ----------- | ------ |
 | grpc.endpoint | gRPC endpoint. | Any Str |
-| grpc.tls.issuer | The entity that issued the certificate. | Any Str |
-| grpc.tls.cn | The commonName in the subject of the certificate. | Any Str |
-| grpc.tls.san | The Subject Alternative Name of the certificate. | Any Slice |

@@ -16,7 +16,7 @@ resourceMetrics:
                         stringValue: ""
                     - key: name
                       value:
-                        stringValue: "127.0.0.1"
+                        stringValue: my-server
                     - key: net.peer.name
                       value:
                         stringValue: "127.0.0.1"
@@ -38,7 +38,7 @@ resourceMetrics:
                         stringValue: ""
                     - key: name
                       value:
-                        stringValue: "127.0.0.1"
+                        stringValue: my-server
                     - key: net.peer.name
                       value:
                         stringValue: "127.0.0.1"
@@ -60,7 +60,7 @@ resourceMetrics:
                         stringValue: ""
                     - key: name
                       value:
-                        stringValue: "127.0.0.1"
+                        stringValue: my-server
                     - key: net.peer.name
                       value:
                         stringValue: "127.0.0.1"
